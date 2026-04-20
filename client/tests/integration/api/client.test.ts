@@ -284,6 +284,40 @@ describe('API client interceptors', () => {
     expect(window.location.href).toBe('http://localhost/shared/abc123');
   });
 
+  it('FE-API-009b: 401 AUTH_REQUIRED on /forgot-password path does not redirect', async () => {
+    Object.defineProperty(window, 'location', {
+      writable: true,
+      value: { href: 'http://localhost/forgot-password', pathname: '/forgot-password', search: '' },
+    });
+
+    server.use(
+      http.get('/api/auth/me', () => {
+        return HttpResponse.json({ code: 'AUTH_REQUIRED' }, { status: 401 });
+      })
+    );
+
+    try { await authApi.me(); } catch { /* expected */ }
+
+    expect(window.location.href).toBe('http://localhost/forgot-password');
+  });
+
+  it('FE-API-009c: 401 AUTH_REQUIRED on /reset-password path does not redirect', async () => {
+    Object.defineProperty(window, 'location', {
+      writable: true,
+      value: { href: 'http://localhost/reset-password?token=abc', pathname: '/reset-password', search: '?token=abc' },
+    });
+
+    server.use(
+      http.get('/api/auth/me', () => {
+        return HttpResponse.json({ code: 'AUTH_REQUIRED' }, { status: 401 });
+      })
+    );
+
+    try { await authApi.me(); } catch { /* expected */ }
+
+    expect(window.location.href).toBe('http://localhost/reset-password?token=abc');
+  });
+
   it('FE-API-010: 401 AUTH_REQUIRED still rejects the promise even when redirect fires', async () => {
     Object.defineProperty(window, 'location', {
       writable: true,
