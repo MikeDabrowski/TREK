@@ -67,8 +67,16 @@ apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401 && (error.response?.data as { code?: string } | undefined)?.code === 'AUTH_REQUIRED') {
-      if (!window.location.pathname.includes('/login') && !window.location.pathname.includes('/register') && !window.location.pathname.startsWith('/shared/') && !window.location.pathname.startsWith('/public/')) {
-        const currentPath = window.location.pathname + window.location.search
+      const path = window.location.pathname
+      const onPublicAuthPage =
+        path.includes('/login') ||
+        path.includes('/register') ||
+        path.startsWith('/forgot-password') ||
+        path.startsWith('/reset-password') ||
+        path.startsWith('/shared/') ||
+        path.startsWith('/public/')
+      if (!onPublicAuthPage) {
+        const currentPath = path + window.location.search
         window.location.href = '/login?redirect=' + encodeURIComponent(currentPath)
       }
     }
